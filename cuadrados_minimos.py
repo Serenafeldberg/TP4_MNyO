@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import sympy as sym
+import seaborn as sns
 
 def cost_function (A, x, b):
     error = A.dot(x) - b
@@ -28,19 +28,19 @@ def gradient_descent_F (A, b, s, iterations, x0):
     x = x0
     for _ in range (iterations):
         gradient = cost_function_gradient(A, b, x)
-        print(gradient)
         x = x - s * gradient
         results.append(np.real(cost_function(A, x, b)))
     
-    print(np.real(cost_function(A, x, b)).shape)
     return np.array(results), x
 
 def gradient_descent_F2 (A, b, s, delta2, iterations, x0):
     x = x0
+    results = []
     for _ in range (iterations):
         gradient = regularized_cost_gradient(A, b, x, delta2)
         x = x - s * gradient
-    return x
+        results.append(np.real(cost_function(A, x, b)))
+    return np.array(results), x
 
 def gradient_descent_F1 (A, b, s, delta1, iterations, x0):
     x = x0
@@ -54,10 +54,6 @@ def svd_least_squares(A, b):
     S_pinv = np.diag(np.reciprocal(S))
     x = Vt.T @ S_pinv @ U.T @ b
     return x
-
-
-def grad (A, x, b):
-    return 2 * (A.T.dot(A).dot(x) - A.T.dot(b))
 
 def learning_rate (A):
     max_val = np.linalg.eigvals(A.T.dot(A)).max()
@@ -76,9 +72,30 @@ def delta1 (A):
 def condicion (A):
     return np.linalg.cond(A, 2)
 
+def plot (iterations, results, x):
+    # Gráfico de la evolución de la solución
+    plt.figure(figsize=(10, 6))
+    plt.plot(range(iterations), results.flatten())  # Aplanar el array cost_history
+    plt.xlabel('Iteraciones')
+    plt.ylabel('Costo')
+    plt.axhline(y=0, color='r', alpha=0.7, linestyle='dashed')
+    plt.title('Evolución del costo con el gradiente descendente')
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+    # Crear el gráfico de calor con la parte real de la solución
+    plt.figure(figsize=(10, 6))
+    sns.heatmap(np.real(x.reshape((10, 10))), cmap='coolwarm', cbar=True)
+    plt.title('Heatmap de la parte real de la solución del gradiente descendente')
+    plt.xlabel('Columnas')
+    plt.ylabel('Filas')
+    plt.show()
+
 
 if __name__ == "__main__":
     """EJERCICIO 1"""
+    iterations = 1000
     np.random.seed(49)
     A = np.random.randint(-10, high=10, size=[5,100])
     b = np.random.randint(-10, high=10, size=[5,1])
@@ -87,30 +104,21 @@ if __name__ == "__main__":
     s = learning_rate(A)
 
     x = gradient_zero(A, b)
-    # print("Ground truth: ", cost_function(A, x, b))
+    print("Ground truth: ", cost_function(A, x, b))
 
-    results, x = gradient_descent_F(A, b, s, 1000, x0)
-    #print ("F:",x[:3])
+    x = svd_least_squares(A, b)
+    print ("SVD:", cost_function(A, x, b))
 
-    #print(results)
+    results, x = gradient_descent_F(A, b, s, iterations, x0)
+    print("RESULT:", cost_function(A, x, b))
 
-    # print("F:", np.real(cost_function(A, x, b)))
-    # plt.figure(figsize=(10, 6))
-    # plt.plot(range(1000), results)
-    # plt.xlabel('Iteraciones')
-    # plt.ylabel('Costo')
-    # plt.title('Evolución del costo con el gradiente descendente')
-    # plt.grid(True)
-    # plt.tight_layout()
-    # plt.show()
+    plot(iterations, results, x)
 
 
     delta2 = delta2(A)
-    x = gradient_descent_F2(A, b, s, delta2, 10000, x0)
-    #print ("F2:",x[:3])
-
-    x = svd_least_squares(A, b)
-    #print ("SVD:", x[:3])
+    results, x = gradient_descent_F2(A, b, s, delta2, iterations, x0)
+    
+    plot(iterations, results, x)
 
     """EJERCICIO 2"""
     A = np.random.rand(100, 100)

@@ -89,6 +89,115 @@ x_f, results1, gradients_F = gradient_descent(A, b, s, 1000, x0)  # Solución mi
 x_f2, results2, gradients_F2 = regularized_gradient_descent(A, b, s, delta2_value, 1000, x0)  # Solución minimizando F2
 x_f1, results3, gradients_F1 = regu2_gradient_descent(A, b, s, delta1_value, 1000, x0)  # Solución minimizando F1
 
+
+# """GRAFICO DE RESULTADOS"""
+# plt.plot(x_svd, label='SVD')
+# plt.plot(x_f, label='F')
+# plt.plot(x_f2, label='F2')
+# plt.plot(x_f1, label='F1')
+# plt.legend()
+# plt.xlabel('vector x')
+# plt.ylabel('valor de x')
+# plt.title('Comparación de soluciones')
+# plt.show()
+
+# """GRAFICO DE RESULTADOS"""
+# # Generar datos para el gráfico de dispersión
+# norm_svd = np.linalg.norm(x_svd, 2)
+# norm_f = np.linalg.norm(x_f, 2)
+# norm_f2 = np.linalg.norm(x_f2, 2)
+# norm_f1 = np.linalg.norm(x_f1, 2)
+
+# x_labels = ['SVD', 'F', 'F2', 'F1']
+# x_norm_values = [norm_svd, norm_f, norm_f2, norm_f1]
+
+# plt.scatter(x_labels, x_norm_values)
+# plt.xlabel('Método')
+# plt.ylabel('Norma 2 de la solución')
+# plt.title('Comparación de las normas 2 de las soluciones')
+# plt.show()
+
+
+"""GRAFICO DELTAS"""
+delta2 = delta2(A)
+delta2_low = (10**(-3))* (np.linalg.eigvals(2*A.T.dot(A)).max())
+delta2_high = (10**(-1))* (np.linalg.eigvals(2*A.T.dot(A)).max())
+
+delta_1 = delta1(A)
+delta1_low = (10**(-4))* (np.linalg.eigvals(2*A.T.dot(A)).max())
+delta1_high = (10**(-2))* (np.linalg.eigvals(2*A.T.dot(A)).max())
+
+x_f2_low, results2_low, gradients_F2_low = regularized_gradient_descent(A, b, s, delta2_low, 1000, x0)  # Solución minimizando F2
+x_f2_high, results2_high, gradients_F2_high = regularized_gradient_descent(A, b, s, delta2_high, 1000, x0)  # Solución minimizando F2
+
+x_f1_low, results3_low, gradients_F1_low = regu2_gradient_descent(A, b, s, delta1_low, 1000, x0)  # Solución minimizando F1
+x_f1_high, results3_high, gradients_F1_high = regu2_gradient_descent(A, b, s, delta1_high, 1000, x0)  # Solución minimizando F1
+
+fig, axes = plt.subplots(1, 2)
+
+# axes[0].plot(results2_low.flatten(), label='F2 delta bajo')
+# axes[0].plot(results2.flatten(), label='F2 delta medio')
+# axes[0].plot(results2_high.flatten(), label='F2 delta alto')
+# axes[0].set_title('F2')
+# axes[0].set_xlabel('Iteraciones')
+# axes[0].set_ylim(-1, 40)
+
+# axes[1].plot(results3_low.flatten(), label='F1 delta bajo')
+# axes[1].plot(results3.flatten(), label='F1 delta medio')
+# axes[1].plot(results3_high.flatten(), label='F1 delta alto')
+# axes[1].set_title('F1')
+# axes[1].set_xlabel('Iteraciones')
+# axes[1].set_ylim(-1, 40)
+
+# axes[0].legend()
+# axes[1].legend()
+
+axes[0].plot(x_f2_low, label='F2 delta bajo')
+axes[0].plot(x_f2, label='F2 delta medio')
+axes[0].plot(x_f2_high, label='F2 delta alto')
+axes[0].plot(x_svd, label='SVD')
+axes[0].set_title('F2')
+axes[0].set_xlabel('vector x')
+axes[0].set_ylabel('valor de x')
+axes[0].set_ylim(-0.5, 0.8)
+
+axes[1].plot(x_f1_low, label='F1 delta bajo')
+axes[1].plot(x_f1, label='F1 delta medio')
+axes[1].plot(x_f1_high, label='F1 delta alto')
+axes[1].plot(x_svd, label='SVD')
+axes[1].set_title('F1')
+axes[1].set_xlabel('vector x')
+axes[1].set_ylabel('valor de x')
+axes[1].set_ylim(-0.5, 0.8)
+
+axes[0].legend()
+axes[1].legend()
+
+plt.show()
+
+"""DELTA MEDIO Y SVD"""
+
+fig, ax = plt.subplots(1, 2)
+
+ax[0].plot (x_svd, label='SVD')
+ax[0].plot (x_f2, label='F2')
+ax[0].set_title('F2')
+ax[0].set_xlabel('vector x')
+ax[0].set_ylabel('valor de x')
+ax[0].set_ylim(-0.5, 0.8)
+
+ax[1].plot (x_svd, label='SVD')
+ax[1].plot (x_f1, label='F1')
+ax[1].set_title('F1')
+ax[1].set_xlabel('vector x')
+ax[1].set_ylabel('valor de x')
+ax[1].set_ylim(-0.5, 0.8)
+
+ax[0].legend()
+ax[1].legend()
+
+plt.show()
+
 # Comparar las soluciones obtenidas con la solución mediante SVD
 cost_svd = cost_function(A, x_svd, b)
 cost_f = cost_function(A, x_f, b)
@@ -126,22 +235,6 @@ plt.ylim(bottom=-1, top=10)
 plt.title('Evolución del costo en el gradiente descendente')
 plt.axhline(y=0, color='r', alpha=0.7, linestyle='dashed')
 plt.legend()
-plt.show()
-
-# Generar datos para el gráfico de dispersión
-error_f = cost_function(A, x_f, b)
-error_f2 = cost_function(A, x_f2, b)
-error_f1 = cost_function(A, x_f1, b)
-error_svd = cost_function(A, x_svd, b)
-
-x_labels = ['SVD', 'F', 'F2', 'F1']
-x_norm_values = [error_svd, error_f, error_f2, error_f1]
-
-# Crear el gráfico de dispersión
-plt.scatter(x_labels, x_norm_values)
-plt.xlabel('Método')
-plt.ylabel('Costo')
-plt.title('Comparación de los costos de los métodos')
 plt.show()
 
 # Grafico de las normas 2 de la evolucion de los gradientes
@@ -208,67 +301,6 @@ plt.subplots_adjust(wspace=0.3)
 
 # Mostrar gráfico
 plt.show()
-
-
-
-"""EJERCICIO 2"""
-
-# def generate_random_matrix_with_condition(m, n, condition_number):
-#     # Generar una matriz aleatoria A de tamaño m x n
-#     A = np.random.rand(m, n)
-
-#     # Calcular la descomposición SVD
-#     U, S, Vt = np.linalg.svd(A, full_matrices=False)
-
-#     # Ajustar los valores singulares según el número de condición deseado
-#     desired_condition = condition_number
-#     current_condition = np.max(S) / np.min(S)
-#     S_modified = S * (desired_condition / current_condition) ** 0.5
-
-#     # Reconstruir la matriz A con los valores singulares modificados
-#     A_modified = U @ np.diag(S_modified) @ Vt
-
-#     return A_modified
-
-# # Ejemplo de uso
-# m = 100
-# n = 100
-# condition_number = 10  # Número de condición deseado
-# A = generate_random_matrix_with_condition(m, n, condition_number)
-# s = learning_rate(A)
-
-# def gradient_descent_iterations(A, b, cond_number, tol, s):
-#     n = A.shape[1]  # Número de columnas de A
-
-#     x = np.random.rand(n, 1)  # Condición inicial aleatoria
-#     error = float('inf')
-#     iterations = 0
-
-#     while error > tol:
-#         gradient = cost_function_gradient(A, x, b)
-#         x -= s * gradient
-#         error = cost_function(A, x, b)
-#         iterations += 1
-
-#     return iterations
-
-# tol = 1e-2
-
-# condition_numbers = [1]  # Números de condición de A
-
-# # Calcular número de iteraciones y comparar con predicción teórica
-# for cond_number in condition_numbers:
-#     A = generate_random_matrix_with_condition(m, n, cond_number)
-
-#     b = np.random.rand(m, 1)  # Vector b aleatorio
-
-#     predicted_iterations = np.log(1 / tol) / np.log(cond_number)
-#     actual_iterations = gradient_descent_iterations(A, b, cond_number, tol)
-
-#     print(f"Número de condición de A: {cond_number}")
-#     print(f"Número de iteraciones (predicción teórica): {predicted_iterations}")
-#     print(f"Número de iteraciones (obtenido): {actual_iterations}")
-#     print("---------")
 
 
 
